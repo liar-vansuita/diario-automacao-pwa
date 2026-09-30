@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="Diário de Bordo de Automação — cronograma, testes, metas e anotações offline.">
+<link rel="manifest" href="manifest.json">
+<title>Diário de Bordo • Automação</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--text:#17191c;--muted:#69707a;--line:#e3e6ea;--accent:#6d4aff;--accent2:#8b73ff;--ok:#16834b;--danger:#c43b45;--shadow:0 10px 30px rgba(20,25,35,.08)}
+[data-theme="dark"]{--bg:#0d1015;--card:#171b22;--text:#f3f5f7;--muted:#a7afbb;--line:#2a303a;--accent:#9a83ff;--accent2:#b2a0ff;--shadow:0 10px 30px rgba(0,0,0,.28)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top{max-width:1050px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand b{font-size:18px}.brand span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}button,.filebtn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:9px 12px;font-weight:650;cursor:pointer}.primary{background:var(--accent);border-color:var(--accent);color:#fff}.danger{color:var(--danger)}
+main{max-width:1050px;margin:auto;padding:20px 18px 60px}.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:16px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}.big{font-size:32px;font-weight:800}.mission{font-size:18px;font-weight:750;margin:8px 0 14px}
+.progress{height:10px;background:var(--line);border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--accent);width:0%;transition:.25s}.stats{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}.stat b{display:block;font-size:21px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.full{grid-column:1/-1}
+.tabs{display:flex;gap:8px;overflow:auto;margin:0 0 16px;padding-bottom:2px}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}
+.list{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;gap:12px;align-items:flex-start}.item.done{opacity:.6}.item input{width:19px;height:19px;margin-top:2px;accent-color:var(--accent)}.item b{display:block;margin-bottom:4px}
+.badge{display:inline-block;border-radius:99px;padding:4px 8px;background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--accent);font-size:12px;font-weight:750}
+textarea,input[type=text],input[type=date]{width:100%;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit}textarea{min-height:170px;resize:vertical}
+.timer{text-align:center}.timer .big{font-variant-numeric:tabular-nums;font-size:52px}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+.notice{border-left:4px solid var(--accent);padding:12px 14px;background:color-mix(in srgb,var(--accent) 8%,var(--card));border-radius:10px}
+footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
+@media(max-width:760px){.hero,.grid{grid-template-columns:1fr}.top{align-items:flex-start}.actions{justify-content:flex-end}.big{font-size:28px}}
+</style>
+</head>
+<body>
+<header><div class="top">
+<div class="brand"><b>Diário de Bordo • Automação</b><span>Laboratório pessoal de IoT e automação residencial</span></div>
+<div class="actions"><button id="themeBtn">Modo escuro</button><button id="installBtn" style="display:none" class="primary">Instalar</button></div>
+</div></header>
+
+<main>
+<section class="hero">
+<div class="card">
+<div class="badge">PROJETO EM ANDAMENTO</div>
+<h1 style="margin:10px 0 6px">Hoje</h1>
+<div id="todayDate" class="muted"></div>
+<div class="mission" id="todayMission">Carregando missão...</div>
+<div class="row"><button class="primary" onclick="startTimer()">Iniciar 30 min</button><button onclick="completeToday()">Concluir missão</button></div>
+</div>
+<div class="card timer">
+<div class="muted">Foco da sessão</div><div id="timer" class="big">30:00</div>
+<div class="row"><button onclick="startTimer()">Iniciar</button><button onclick="pauseTimer()">Pausar</button><button onclick="resetTimer()">Zerar</button></div>
+</div>
+</section>
+
+<div class="tabs">
+<button class="tab active" data-tab="inicio">Visão geral</button>
+<button class="tab" data-tab="cronograma">Cronograma</button>
+<button class="tab" data-tab="testes">Testes</button>
+<button class="tab" data-tab="metas">Metas</button>
+<button class="tab" data-tab="diario">Diário</button>
+<button class="tab" data-tab="seguranca">Dados</button>
+</div>
+
+<section id="inicio" class="panel active">
+<div class="grid">
+<div class="card"><h2>Progresso das lâmpadas</h2><div class="big"><span id="lampCount">0</span> / 7</div><div class="progress"><div class="bar" id="lampBar"></div></div><div class="stats"><div class="stat"><b id="doneCount">0</b><span class="muted">tarefas concluídas</span></div><div class="stat"><b id="testCount">0</b><span class="muted">testes concluídos</span></div></div></div>
+<div class="card"><h2>Princípio do projeto</h2><p>Aprender na prática: instalar → conectar → controlar → automatizar → testar → documentar.</p><div class="notice">O objetivo não é só “fazer funcionar”. É entender <b>por que funciona, quando falha e como melhorar</b>.</div></div>
+</div>
+</section>
+
+<section id="cronograma" class="panel"><div class="card"><h2>Cronograma</h2><p class="muted">Sessões principais: quintas, sábados e domingos. Quinta pode ser estudo/planejamento quando você não estiver no local. Mínimo: 30 min.</p><div id="schedule" class="list"></div></div></section>
+
+<section id="testes" class="panel"><div class="card"><h2>Testes e programação</h2><p class="muted">Marque somente depois de executar e observar o resultado.</p><div id="tests" class="list"></div></div></section>
+
+<section id="metas" class="panel"><div class="card"><h2>Metas 1 → 3 → 5 → 7</h2><div id="goals" class="list"></div></div></section>
+
+<section id="diario" class="panel"><div class="card"><h2>Diário de bordo</h2><p class="muted">Anote o que fez, o que deu errado, o que aprendeu e o próximo passo. Salvo automaticamente no aparelho.</p><textarea id="notes" placeholder="Ex.: Hoje configurei... O problema foi... Descobri que... Próximo passo..."></textarea><p id="saveStatus" class="muted">Salvamento automático ativado.</p></div></section>
+
+<section id="seguranca" class="panel"><div class="grid">
+<div class="card"><h2>Proteção dos seus dados</h2><p>O app salva os dados localmente no aparelho. Reiniciar o celular/tablet, desligar o aparelho ou ficar sem bateria <b>não apaga os dados salvos</b>.</p><div class="notice"><b>Importante:</b> nenhum armazenamento local deve ser tratado como backup único. Exporte um backup regularmente.</div></div>
+<div class="card"><h2>Backup</h2><p class="muted">Exporte um arquivo JSON e guarde-o no Google Drive, OneDrive, computador ou pendrive.</p><div class="row"><button class="primary" onclick="exportBackup()">Exportar backup</button><label class="filebtn" style="text-align:center">Importar backup<input id="importFile" type="file" accept=".json" hidden></label></div><p id="backupStatus" class="muted"></p></div>
+<div class="card full"><h2>Redefinição</h2><p class="muted">Use somente se quiser apagar os dados deste aparelho. Faça um backup antes.</p><button class="danger" onclick="resetData()">Apagar dados deste aparelho</button></div>
+</div></section>
+</main>
+<footer>Diário de Bordo • Automação — PWA offline · dados locais + backup manual</footer>
+
+<script>
+const schedule=[
+["01/10","Quinta","Kickoff presencial","Conhecer o projeto, revisar segurança elétrica e preparar a primeira lâmpada."],
+["03/10","Sábado","Primeira instalação","Instalar/configurar 1 lâmpada inteligente. Criar conta no app e conectar ao Wi‑Fi."],
+["04/10","Domingo","Meta 1","Testar liga/desliga pelo aplicativo e registrar o resultado."],
+["08/10","Quinta","Estudo","Entender Wi‑Fi 2.4 GHz, aplicativo, conta, dispositivo e nuvem."],
+["10/10","Sábado","Testes","Executar os testes de falha: Wi‑Fi desligado, outra rede, reinício do roteador e energia."],
+["11/10","Domingo","Documentação","Registrar respostas e aprendizados no diário."],
+["15/10","Quinta","Automação por horário","Estudar gatilhos, horários e condições."],
+["17/10","Sábado","Programação","Criar a primeira automação por horário."],
+["18/10","Domingo","Validação","Observar se a rotina executa sem intervenção."],
+["22/10","Quinta","Expansão","Planejar 2ª e 3ª lâmpadas."],
+["24/10","Sábado","Instalação","Adicionar/configurar lâmpadas 2 e 3, conforme segurança e infraestrutura."],
+["25/10","Domingo","Meta 3","Testar 3 lâmpadas e revisar automações."],
+["29/10","Quinta","Voz","Estudar integração com assistente de voz e comandos naturais."],
+["31/10","Sábado","Integração","Preparar integração com Alexa, se os dispositivos forem compatíveis."],
+["01/11","Domingo","Meta Alexa","Testar comando por voz via Alexa e documentar limitações."],
+["05/11","Quinta","Cenas","Estudar cenas: vários dispositivos/ações acionados por um comando."],
+["07/11","Sábado","Cena 1","Criar uma cena simples, como “Noite”."],
+["08/11","Domingo","Validação","Testar a cena e corrigir comportamentos inesperados."],
+["12/11","Quinta","Expansão","Planejar lâmpadas 4 e 5."],
+["14/11","Sábado","Instalação","Adicionar/configurar lâmpadas 4 e 5."],
+["15/11","Domingo","Meta 5","Testar conjunto de 5 lâmpadas."],
+["19/11","Quinta","Confiabilidade","Estudar falhas, latência, rede e recuperação."],
+["21/11","Sábado","Testes","Executar bateria de testes de confiabilidade."],
+["22/11","Domingo","Documentação","Registrar resultados e melhorias."],
+["26/11","Quinta","Cena avançada","Planejar uma cena envolvendo horário + luzes + contexto."],
+["28/11","Sábado","Implementação","Criar e testar a cena avançada."],
+["29/11","Domingo","Revisão","Revisar meta de 5 e preparar expansão para 7."],
+["03/12","Quinta","Expansão final","Planejar lâmpadas 6 e 7."],
+["05/12","Sábado","Instalação","Adicionar/configurar lâmpadas 6 e 7."],
+["06/12","Domingo","Meta 7","Testar as 7 lâmpadas individualmente."],
+["10/12","Quinta","Automação geral","Revisar horários, cenas e comandos de voz."],
+["12/12","Sábado","Teste integrado","Executar cenários completos."],
+["13/12","Domingo","Correções","Corrigir falhas e registrar evidências."],
+["17/12","Quinta","Portfólio","Organizar fotos, vídeos, aprendizados e resultados."],
+["19/12","Sábado","Demonstração","Executar demonstração completa do sistema."],
+["20/12","Domingo","Fechamento técnico","Checklist final: 7 lâmpadas + app + horário + Alexa + cena + voz."],
+["23/12","Quarta","Encerramento","Fechar o diário, exportar backup e registrar próximos objetivos."]
+];
+const tests=[
+"1 lâmpada: ligar/desligar pelo aplicativo 10 vezes",
+"Wi‑Fi desligado: observar o comportamento da lâmpada",
+"Celular em outra rede: verificar o controle",
+"Reiniciar o roteador e testar novamente",
+"Desligar/ligar a energia e observar a recuperação",
+"Testar resposta após alguns minutos sem usar",
+"Automação por horário: executar no horário programado",
+"Alexa: comando de voz para ligar/desligar",
+"Criar uma cena e testar todas as ações",
+"Testar uma cena mais de uma vez",
+"Testar as lâmpadas individualmente",
+"Teste integrado das 7 lâmpadas"
+];
+const goals=[
+["Meta 1","1 lâmpada controlada pelo aplicativo","04/10/2026"],
+["Meta 3","3 lâmpadas + automação por horário","25/10/2026"],
+["Meta 5","5 lâmpadas + Alexa + primeira cena","29/11/2026"],
+["Meta 7","7 lâmpadas + cena + voz + testes integrados","20/12/2026"]
+];
+
+const KEY="diarioAutomacaoPWA_v1";
+let data=JSON.parse(localStorage.getItem(KEY)||'{"schedule":{},"tests":{},"goals":{},"notes":"","theme":"light"}');
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));render();};
+function render(){
+document.documentElement.dataset.theme=data.theme==="dark"?"dark":"light";
+document.getElementById("themeBtn").textContent=data.theme==="dark"?"Modo claro":"Modo escuro";
+document.getElementById("notes").value=data.notes||"";
+let done=Object.values(data.schedule).filter(Boolean).length;
+let testsDone=Object.values(data.tests).filter(Boolean).length;
+let lamp=goals.reduce((n,g,i)=>data.goals[i]?parseInt(g[0].replace(/\D/g,''),10):n,0);
+document.getElementById("doneCount").textContent=done;
+document.getElementById("testCount").textContent=testsDone;
+document.getElementById("lampCount").textContent=Math.min(lamp,7);
+document.getElementById("lampBar").style.width=(Math.min(lamp,7)/7*100)+"%";
+document.getElementById("schedule").innerHTML=schedule.map((s,i)=>`<label class="item ${data.schedule[i]?'done':''}"><input type="checkbox" ${data.schedule[i]?'checked':''} onchange="data.schedule[${i}]=this.checked;save()"><div><b>${s[0]} · ${s[1]} · ${s[2]}</b><span class="muted">${s[3]}</span></div></label>`).join("");
+document.getElementById("tests").innerHTML=tests.map((t,i)=>`<label class="item ${data.tests[i]?'done':''}"><input type="checkbox" ${data.tests[i]?'checked':''} onchange="data.tests[${i}]=this.checked;save()"><div><b>Teste ${i+1}</b><span class="muted">${t}</span></div></label>`).join("");
+document.getElementById("goals").innerHTML=goals.map((g,i)=>`<label class="item ${data.goals[i]?'done':''}"><input type="checkbox" ${data.goals[i]?'checked':''} onchange="data.goals[${i}]=this.checked;save()"><div><b>${g[0]} — ${g[1]}</b><span class="muted">Prazo: ${g[2]}</span></div></label>`).join("");
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab,.panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active")});
+document.getElementById("themeBtn").onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";save()};
+document.getElementById("notes").oninput=()=>{data.notes=document.getElementById("notes").value;localStorage.setItem(KEY,JSON.stringify(data));document.getElementById("saveStatus").textContent="Salvo automaticamente às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};
+function completeToday(){let today=new Date();let d=String(today.getDate()).padStart(2,"0")+"/"+String(today.getMonth()+1).padStart(2,"0");let i=schedule.findIndex(s=>s[0]===d);if(i>=0){data.schedule[i]=true;save();alert("Missão marcada como concluída.");}else alert("Hoje não há uma sessão principal cadastrada.");}
+function setMission(){let today=new Date();let key=String(today.getDate()).padStart(2,"0")+"/"+String(today.getMonth()+1).padStart(2,"0");let i=schedule.findIndex(s=>s[0]===key);document.getElementById("todayDate").textContent=today.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});document.getElementById("todayMission").textContent=i>=0?schedule[i][2]+": "+schedule[i][3]:"Hoje é um dia livre de cronograma. Use para revisar, estudar ou descansar."; }
+let seconds=1800,timerId=null;
+function updateTimer(){document.getElementById("timer").textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
+function startTimer(){if(timerId)return;timerId=setInterval(()=>{if(seconds>0){seconds--;updateTimer()}else{clearInterval(timerId);timerId=null;alert("Sessão de 30 minutos concluída!")}},1000)}
+function pauseTimer(){clearInterval(timerId);timerId=null}
+function resetTimer(){pauseTimer();seconds=1800;updateTimer()}
+function exportBackup(){let payload={app:"Diário de Bordo • Automação",version:1,exportedAt:new Date().toISOString(),data};let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));a.download="backup-diario-automacao-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);document.getElementById("backupStatus").textContent="Backup exportado. Guarde uma cópia fora deste aparelho."}
+document.getElementById("importFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let p=JSON.parse(r.result);if(!p.data)throw Error();data=p.data;save();document.getElementById("backupStatus").textContent="Backup restaurado com sucesso."}catch{alert("Arquivo de backup inválido.")}};r.readAsText(f)};
+function resetData(){if(confirm("Isso apagará os dados salvos neste aparelho. Você já fez um backup?")){localStorage.removeItem(KEY);location.reload()}}
+let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBtn").style.display="block"});document.getElementById("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null}};
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js"));
+setMission();render();updateTimer();
+</script>
+</body>
+</html>
